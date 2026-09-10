@@ -5,7 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>업무터치 v1.2 · 업무 인수인계 관리</title>
 <meta name="description" content="브라우저에서 독립 실행되는 업무 인수인계 관리 웹앱 · v1.2" />
-<link rel="stylesheet" href="styles.css" />
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--surface-2:#f8fafc;--text:#172033;--muted:#68738a;
+  --line:#e4e8ef;--line-strong:#d8dee8;--primary:#3859d9;--primary-2:#2747c5;--primary-soft:#edf1ff;
+  --success:#14825c;--success-soft:#e8f7f0;--warning:#ad6b00;--warning-soft:#fff5df;--danger:#c93f4c;--danger-soft:#ffedf0;
+  --shadow:0 14px 40px rgba(25,37,66,.08);--shadow-sm:0 5px 18px rgba(25,37,66,.06);--radius:18px;--radius-sm:12px;
+}
+html[data-theme="dark"]{
+  --bg:#11141b;--surface:#191e28;--surface-2:#202633;--text:#f0f3f8;--muted:#a4aec0;--line:#2b3342;--line-strong:#374153;
+  --primary:#6f8cff;--primary-2:#8fa4ff;--primary-soft:#232c50;--success:#5fd0a4;--success-soft:#173b31;
+  --warning:#f4bb5f;--warning-soft:#3a2c16;--danger:#ff7f8a;--danger-soft:#3d2026;--shadow:0 16px 44px rgba(0,0,0,.22);--shadow-sm:0 6px 20px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box} html{font-family:Inter,Pretendard,"Noto Sans KR",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% -10%,rgba(56,89,217,.12),transparent 26%),var(--bg)}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.app{max-width:1500px;margin:0 auto;padding:28px clamp(16px,3vw,38px) 48px}
+.header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:13px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#4868e8,#233fba);display:grid;place-items:center;color:white;font-weight:800;box-shadow:0 10px 24px rgba(56,89,217,.26)}
+.brand h1{margin:0;font-size:23px;letter-spacing:-.03em}.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.header-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:11px;padding:10px 13px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;box-shadow:var(--shadow-sm);transition:.18s ease}
+.btn:hover{transform:translateY(-1px);border-color:var(--line-strong)} .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-2)}
+.btn.ghost{box-shadow:none;background:transparent}.btn.danger{color:var(--danger);background:var(--danger-soft);border-color:transparent}.btn.small{padding:7px 10px;min-height:34px;font-size:12px}
+.grid-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:18px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);min-height:110px;position:relative;overflow:hidden}
+.metric::after{content:"";position:absolute;width:78px;height:78px;border-radius:50%;right:-24px;top:-24px;background:var(--primary-soft)}
+.metric .label{font-size:12px;color:var(--muted);font-weight:700}.metric .value{font-size:30px;font-weight:850;letter-spacing:-.04em;margin-top:10px}.metric .hint{font-size:11px;color:var(--muted);margin-top:4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.toolbar{display:grid;grid-template-columns:minmax(220px,1.4fr) repeat(5,minmax(120px,.6fr)) auto;gap:10px;padding:16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),var(--surface-2))}
+.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;font-weight:750;color:var(--muted)}
+.control{width:100%;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:11px;padding:10px 12px;outline:none;min-height:42px}.control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(56,89,217,.12)}
+.search-wrap{position:relative}.search-wrap .control{padding-left:38px}.search-icon{position:absolute;left:13px;top:12px;color:var(--muted);font-size:14px}
+.table-wrap{overflow:auto;max-height:calc(100vh - 330px);min-height:330px}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1050px}
+th,td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}th{position:sticky;top:0;background:var(--surface-2);z-index:2;color:var(--muted);font-size:11px;letter-spacing:.01em;font-weight:800;text-transform:none}
+tbody tr:hover{background:var(--surface-2)} tbody tr:last-child td{border-bottom:0}.title-cell{min-width:220px}.task-title{font-weight:800;letter-spacing:-.02em}.task-sub{color:var(--muted);font-size:11px;margin-top:4px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;white-space:nowrap;background:var(--surface-2);border:1px solid var(--line)}
+.badge.receive{background:var(--primary-soft);color:var(--primary);border-color:transparent}.badge.handover{background:var(--success-soft);color:var(--success);border-color:transparent}.badge.high{background:var(--danger-soft);color:var(--danger);border-color:transparent}.badge.medium{background:var(--warning-soft);color:var(--warning);border-color:transparent}.badge.low{color:var(--muted)}
+.status{font-weight:800}.status.done{color:var(--success)}.status.active{color:var(--primary)}.status.plan{color:var(--muted)}
+.progress{display:flex;align-items:center;gap:8px;min-width:110px}.bar{height:6px;flex:1;border-radius:999px;background:var(--line);overflow:hidden}.bar span{display:block;height:100%;border-radius:inherit;background:var(--primary)}.pct{font-size:11px;color:var(--muted);width:31px;text-align:right}
+.due-soon{color:var(--danger);font-weight:850}.due-chip{display:block;font-size:10px;margin-top:3px;color:var(--danger);font-weight:800}.actions{display:flex;gap:6px}
+.empty{padding:58px 22px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.footer-line{padding:12px 16px;color:var(--muted);font-size:11px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;background:rgba(7,12,24,.52);display:none;place-items:center;padding:18px;z-index:20;backdrop-filter:blur(5px)}.modal-backdrop.open{display:grid}.modal{width:min(780px,100%);max-height:92vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:19px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2}.modal-head h2{font-size:18px;margin:0}.modal-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.modal-body .wide{grid-column:1/-1}.modal-foot{display:flex;justify-content:flex-end;gap:9px;padding:16px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--surface)}textarea.control{min-height:92px;resize:vertical}
+.toast-wrap{position:fixed;right:20px;bottom:20px;display:grid;gap:9px;z-index:50;max-width:min(420px,calc(100vw - 40px))}.toast{background:var(--surface);color:var(--text);border:1px solid var(--line);box-shadow:var(--shadow);padding:13px 15px;border-radius:13px;font-size:13px;animation:up .2s ease}.toast.error{border-left:4px solid var(--danger)}.toast.success{border-left:4px solid var(--success)}@keyframes up{from{transform:translateY(8px);opacity:0}}
+.mobile-list{display:none;padding:10px}.mobile-card{border:1px solid var(--line);border-radius:15px;padding:14px;background:var(--surface);margin-bottom:10px}.mobile-card .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.mobile-card h3{font-size:15px;margin:8px 0 5px}.mobile-card p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}.mobile-card .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.mobile-card .meta div{background:var(--surface-2);padding:9px;border-radius:10px;font-size:11px}.mobile-card .meta b{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.mobile-card .card-actions{display:flex;gap:7px;margin-top:12px}
+.file-input{display:none}.test-results{display:none;margin:12px 0;padding:12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-size:12px;white-space:pre-wrap}
+@media(max-width:1080px){.grid-cards{grid-template-columns:repeat(3,1fr)}.toolbar{grid-template-columns:1fr 1fr 1fr}.toolbar .search-field{grid-column:1/-1}.toolbar .reset-wrap{align-self:end}}
+@media(max-width:700px){.app{padding:18px 12px 28px}.header{align-items:flex-start}.brand p{display:none}.brand h1{font-size:20px}.header-actions .btn span.label{display:none}.grid-cards{grid-template-columns:1fr 1fr;gap:9px}.metric{padding:14px;min-height:92px}.metric .value{font-size:24px}.toolbar{grid-template-columns:1fr 1fr;padding:12px}.toolbar .search-field{grid-column:1/-1}.toolbar .reset-wrap{grid-column:1/-1}.table-wrap{display:none}.mobile-list{display:block}.panel{border-radius:17px}.modal-body{grid-template-columns:1fr}.modal-body .wide{grid-column:1}.modal{border-radius:18px}.footer-line{font-size:10px}.header-actions{gap:6px}.btn{padding:9px 10px}.grid-cards .metric:nth-child(5){grid-column:1/-1}}
+@media(max-width:430px){.grid-cards{grid-template-columns:1fr 1fr}.metric .hint{display:none}.toolbar{grid-template-columns:1fr}.toolbar .search-field,.toolbar .reset-wrap{grid-column:1}.header{flex-direction:column}.header-actions{width:100%;justify-content:flex-start}.header-actions .btn{flex:1}.header-actions .btn.primary{flex:1.25}.mobile-card .meta{grid-template-columns:1fr 1fr}}
+
+.status-select{min-width:96px;padding:7px 28px 7px 9px;min-height:34px;font-size:12px;font-weight:800;border-radius:9px}
+.check-summary{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:11px;color:var(--muted)}
+.check-mini{height:5px;width:74px;border-radius:999px;background:var(--line);overflow:hidden}.check-mini span{display:block;height:100%;background:var(--success);border-radius:inherit}
+.view-note{font-size:11px;color:var(--muted);margin-top:3px}.archived-row{opacity:.9}.trash-row{opacity:.72}
+.modal.compact{width:min(650px,100%)}.modal.wide-modal{width:min(980px,100%)}
+.checklist-list{display:grid;gap:9px}.check-item{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}.check-item input{margin-top:2px;width:18px;height:18px;accent-color:var(--primary)}.check-item.done span{text-decoration:line-through;color:var(--muted)}
+.checklist-headline{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.checklist-headline strong{font-size:14px}.checklist-headline span{font-size:12px;color:var(--muted)}
+.preview-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.preview-stat{padding:12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}.preview-stat b{display:block;font-size:20px;margin-top:4px}.preview-stat span{font-size:11px;color:var(--muted)}
+.preview-table-wrap{max-height:48vh;overflow:auto;border:1px solid var(--line);border-radius:12px}.preview-table{min-width:720px}.preview-table th{position:sticky;top:0}.preview-table td,.preview-table th{padding:10px}.preview-dup{color:var(--warning);font-weight:800}.preview-new{color:var(--success);font-weight:800}
+.toast-row{display:flex;align-items:center;gap:12px;justify-content:space-between}.toast-action{border:0;background:var(--primary-soft);color:var(--primary);font-weight:850;padding:6px 9px;border-radius:8px;white-space:nowrap}
+.metric{cursor:default}.metric[data-metric]{cursor:pointer}.metric[data-metric]:focus-visible{outline:3px solid rgba(56,89,217,.22);outline-offset:2px}
+.backup-input{display:none}.toolbar .field.sort-field,.toolbar .field.view-field{min-width:130px}
+@media(max-width:1080px){.toolbar .sort-field,.toolbar .view-field{grid-column:auto}.header-actions{max-width:680px}}
+@media(max-width:700px){.status-select{min-width:0;width:100%}.preview-summary{grid-template-columns:1fr 1fr 1fr}.preview-stat{padding:9px}.preview-stat b{font-size:17px}.check-summary{margin-top:5px}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -98,11 +163,212 @@
 </div>
 <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
 
-<script src="app-config.js"></script>
-<script src="template.js"></script>
-<script src="app-core.js"></script>
-<script src="xlsx.js"></script>
-<script src="import.js"></script>
-<script src="bootstrap.js"></script>
+<script>
+(() => {
+'use strict';
+const STORAGE_KEY='eomuteouch.tasks.v1';
+const THEME_KEY='eomuteouch.theme.v1';
+const UI_KEY='eomuteouch.ui.v1';
+const APP_VERSION='1.2.0';
+const TRASH_RETENTION_MS=30*24*60*60*1000;
+const STANDARD_HEADERS=['구분','업무명','카테고리','인수인계 대상자','소속 부서/직급','연락처/이메일','우선순위','진행상태','마감기한','업무 상세 내용 및 주의사항','세부 체크리스트 항목 (쉼표 또는 줄바꿈 구분)','관련 문서/드라이브 링크'];
+
+const te=new TextEncoder(),td=new TextDecoder('utf-8');
+function crc32(bytes){let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0)}return (c^0xffffffff)>>>0}
+function u16(a,o,v){a[o]=v&255;a[o+1]=(v>>>8)&255} function u32(a,o,v){u16(a,o,v&65535);u16(a,o+2,(v>>>16)&65535)}
+function concat(parts){const len=parts.reduce((n,p)=>n+p.length,0),out=new Uint8Array(len);let o=0;for(const p of parts){out.set(p,o);o+=p.length}return out}
+function zipStore(files){let offset=0,locals=[],centrals=[];for(const [name,content] of Object.entries(files)){const nameB=te.encode(name),data=typeof content==='string'?te.encode(content):content,crc=crc32(data);const l=new Uint8Array(30+nameB.length);u32(l,0,0x04034b50);u16(l,4,20);u16(l,6,0);u16(l,8,0);u16(l,10,0);u16(l,12,0);u32(l,14,crc);u32(l,18,data.length);u32(l,22,data.length);u16(l,26,nameB.length);u16(l,28,0);l.set(nameB,30);locals.push(l,data);const c=new Uint8Array(46+nameB.length);u32(c,0,0x02014b50);u16(c,4,20);u16(c,6,20);u16(c,8,0);u16(c,10,0);u16(c,12,0);u16(c,14,0);u32(c,16,crc);u32(c,20,data.length);u32(c,24,data.length);u16(c,28,nameB.length);u16(c,30,0);u16(c,32,0);u16(c,34,0);u16(c,36,0);u32(c,38,0);u32(c,42,offset);c.set(nameB,46);centrals.push(c);offset+=l.length+data.length}const central=concat(centrals),local=concat(locals),e=new Uint8Array(22);u32(e,0,0x06054b50);u16(e,4,0);u16(e,6,0);u16(e,8,centrals.length);u16(e,10,centrals.length);u32(e,12,central.length);u32(e,16,local.length);u16(e,20,0);return concat([local,central,e])}
+function xmlEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]))}
+function colName(n){let s='';for(n++;n>0;n=Math.floor((n-1)/26))s=String.fromCharCode(65+(n-1)%26)+s;return s}
+function workbookBytes(rows,sheetName='인수인계작성양식'){
+ const rowXml=rows.map((row,ri)=>`<row r="${ri+1}">${row.map((v,ci)=>{const ref=colName(ci)+(ri+1);if(typeof v==='number'&&Number.isFinite(v))return `<c r="${ref}" t="n"><v>${v}</v></c>`;return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`}).join('')}</row>`).join('');
+ const lastCol=colName(Math.max(0,(rows[0]?.length||1)-1));
+ const files={
+  '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+  '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+  'xl/workbook.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xmlEsc(sheetName)}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+  'xl/_rels/workbook.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+  'xl/styles.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="맑은 고딕"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
+  'xl/worksheets/sheet1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:${lastCol}${Math.max(1,rows.length)}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="34" customWidth="1"/><col min="3" max="3" width="18" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="6" width="22" customWidth="1"/><col min="7" max="8" width="16" customWidth="1"/><col min="9" max="9" width="15" customWidth="1"/><col min="10" max="10" width="44" customWidth="1"/><col min="11" max="11" width="42" customWidth="1"/><col min="12" max="12" width="38" customWidth="1"/></cols><sheetData>${rowXml}</sheetData></worksheet>`
+ };
+ return zipStore(files);
+}
+function downloadBlob(bytes,name){const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function bytesFromBase64(s){const bin=atob(s),out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out}
+function excelPriority(v){return v==='높음'?'긴급/중요':v==='낮음'?'낮음':'보통'}
+function excelStatus(v){return v==='예정'?'인수/인계 대기':v}
+function mergeDetailForExcel(t){return [t.content,t.notes?`[참고사항]\n${t.notes}`:''].filter(Boolean).join('\n\n')}
+function exportRows(taskList){return [STANDARD_HEADERS,...taskList.map(t=>[t.direction,t.title,t.category||'',t.counterpart||'',t.departmentRole||'',t.contact||'',excelPriority(t.priority),excelStatus(t.status),t.dueDate,mergeDetailForExcel(t),t.checklist||'',t.documents||''])];}
+function downloadTemplate(){const sample=[STANDARD_HEADERS,['인수','예: 사례 그룹웨어 전자결재 관리자 권한 이관','시스템/계정권한','홍길동 차장','경영지원팀 / 차장','gdhong@company.com','긴급/중요','진행중','2026-09-30','결재 문서 템플릿 수정 방법 및 관리자 OTP 전달','마스터 계정 로그인 확인, 비상 관리자 지정, 양식 백업','https://company.drive.com/manual']];downloadBlob(workbookBytes(sample),'업무터치_인수인계_엑셀등록양식.xlsx');toast('표준 12열 엑셀 등록양식을 내려받았습니다.');}
+function exportCurrent(){const list=activeTasks();downloadBlob(workbookBytes(exportRows(list)),'업무터치_업무목록_'+localDate()+'.xlsx');toast(`관리 중 업무 ${list.length}건을 표준 양식으로 엑셀 저장했습니다.`);}
+
+const $=s=>document.querySelector(s);
+const els={
+ body:$('#taskBody'),mobile:$('#mobileList'),empty:$('#emptyState'),count:$('#resultCount'),
+ search:$('#searchInput'),direction:$('#directionFilter'),status:$('#statusFilter'),priority:$('#priorityFilter'),view:$('#viewFilter'),sort:$('#sortFilter'),
+ modal:$('#modalBackdrop'),form:$('#taskForm'),id:$('#taskId'),title:$('#fTitle'),dir:$('#fDirection'),category:$('#fCategory'),counterpart:$('#fCounterpart'),departmentRole:$('#fDepartmentRole'),contact:$('#fContact'),due:$('#fDueDate'),
+ fstatus:$('#fStatus'),fpriority:$('#fPriority'),progress:$('#fProgress'),progressValue:$('#progressValue'),content:$('#fContent'),checklist:$('#fChecklist'),documents:$('#fDocuments'),notes:$('#fNotes'),
+ checklistModal:$('#checklistBackdrop'),checklistContent:$('#checklistContent'),importModal:$('#importBackdrop'),importContent:$('#importPreviewContent'),
+ file:$('#fileInput'),restoreFile:$('#restoreFileInput'),tests:$('#testResults')
+};
+let tasks=[];
+let currentChecklistTaskId=null;
+let pendingImport=[];
+let metricMode='';
+const pad=n=>String(n).padStart(2,'0');
+const localDate=(offset=0)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+offset);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const sampleTasks=()=>[
+ {id:uid(),title:'월간 주요업무 실적보고',direction:'인수',dueDate:localDate(2),status:'진행중',priority:'높음',progress:60,content:'부서별 주요업무 추진실적을 취합하고 보고자료를 작성합니다.',checklist:'부서별 자료 요청\n미제출 부서 재요청\n수합자료 검토\n최종 보고자료 작성',notes:'전월 보고자료 형식 참고',createdAt:Date.now(),updatedAt:Date.now()},
+ {id:uid(),title:'정기 인사자료 업데이트',direction:'인수',dueDate:localDate(8),status:'예정',priority:'보통',progress:20,content:'인사 변동사항을 확인하여 관리자료를 최신화합니다.',notes:'변동자 명단 재확인',createdAt:Date.now(),updatedAt:Date.now()},
+ {id:uid(),title:'행사 운영 매뉴얼 인계',direction:'인계',dueDate:localDate(5),status:'진행중',priority:'보통',progress:75,content:'행사 사전 준비부터 현장 운영까지 필요한 체크사항을 정리해 인계합니다.',checklist:'행사계획 확인\n참석자 명단 점검\n현장 준비사항 인계\n결과보고 위치 안내',notes:'체크리스트 포함',createdAt:Date.now(),updatedAt:Date.now()},
+ {id:uid(),title:'문서 보관함 정리',direction:'인계',dueDate:localDate(-1),status:'완료',priority:'낮음',progress:100,content:'공유폴더와 종이문서 보관 위치를 정리하여 인계합니다.',notes:'완료 문서 목록 첨부',createdAt:Date.now(),updatedAt:Date.now()}
+];
+function uid(){return (crypto.randomUUID?crypto.randomUUID():'t-'+Date.now()+'-'+Math.random().toString(16).slice(2));}
+function parseChecklistText(v){return String(v||'').split(/\r?\n|,/).map(x=>x.trim()).filter(Boolean)}
+function reconcileChecklist(text,existing=[]){const old=new Map((Array.isArray(existing)?existing:[]).map(x=>[String(x.text||'').trim(),!!x.done]));return parseChecklistText(text).map(x=>({text:x,done:old.get(x)||false}))}
+function purgeExpiredTrash(){const now=Date.now();tasks=tasks.filter(t=>!t.deletedAt||(now-Number(t.deletedAt))<TRASH_RETENTION_MS)}
+function load(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(!Array.isArray(parsed))throw new Error('invalid');tasks=parsed.map(t=>normalizeTask(t,false));purgeExpiredTrash();save();}else{tasks=sampleTasks().map(t=>normalizeTask(t,false));save();}const ui=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(ui.view&&els.view)els.view.value=ui.view;if(ui.sort&&els.sort)els.sort.value=ui.sort;}catch{tasks=sampleTasks().map(t=>normalizeTask(t,false));save();}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(tasks));localStorage.setItem(UI_KEY,JSON.stringify({view:els.view?.value||'active',sort:els.sort?.value||'due'}));}
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function daysUntil(dateStr){const today=new Date();today.setHours(0,0,0,0);const d=new Date(dateStr+'T00:00:00');return Math.round((d-today)/86400000)}
+function isSoon(t){const d=daysUntil(t.dueDate);return !t.deletedAt&&!t.archivedAt&&t.status!=='완료'&&d>=0&&d<=3}
+function dueLabel(t){const d=daysUntil(t.dueDate);if(t.status==='완료')return '';if(d<0)return `기한 ${Math.abs(d)}일 지남`;if(d===0)return '오늘 마감';if(d<=3)return `${d}일 남음`;return ''}
+function normalizeTask(t,touch=true){
+ const progress=Math.max(0,Math.min(100,Number(t.progress)||0));const status=['예정','진행중','완료'].includes(t.status)?t.status:'예정';const checklist=String(t.checklist||'');
+ return {id:t.id||uid(),title:String(t.title||'').trim(),direction:['인수','인계'].includes(t.direction)?t.direction:'인수',category:String(t.category||'').trim(),counterpart:String(t.counterpart||'').trim(),departmentRole:String(t.departmentRole||'').trim(),contact:String(t.contact||'').trim(),dueDate:String(t.dueDate||localDate()),status,priority:['높음','보통','낮음'].includes(t.priority)?t.priority:'보통',progress:status==='완료'?100:progress,previousProgress:Number.isFinite(Number(t.previousProgress))?Number(t.previousProgress):progress,content:String(t.content||''),checklist,checklistItems:reconcileChecklist(checklist,t.checklistItems),documents:String(t.documents||''),notes:String(t.notes||''),archivedAt:t.archivedAt||null,deletedAt:t.deletedAt||null,createdAt:t.createdAt||Date.now(),updatedAt:touch?Date.now():(t.updatedAt||Date.now())};
+}
+function activeTasks(){return tasks.filter(t=>!t.deletedAt&&!t.archivedAt)}
+function checklistStats(t){const items=Array.isArray(t.checklistItems)?t.checklistItems:[];const done=items.filter(x=>x.done).length;return {done,total:items.length,pct:items.length?Math.round(done/items.length*100):0}}
+function priorityRank(p){return p==='높음'?0:p==='보통'?1:2}
+function sortTasks(list){const mode=els.sort?.value||'due';return list.sort((a,b)=>{if(mode==='updated')return Number(b.updatedAt)-Number(a.updatedAt);if(mode==='priority')return priorityRank(a.priority)-priorityRank(b.priority)||a.dueDate.localeCompare(b.dueDate);if(mode==='progress')return b.progress-a.progress||a.dueDate.localeCompare(b.dueDate);if(mode==='title')return a.title.localeCompare(b.title,'ko');const ac=a.status==='완료'?1:0,bc=b.status==='완료'?1:0;return ac-bc||a.dueDate.localeCompare(b.dueDate)||Number(b.updatedAt)-Number(a.updatedAt)})}
+function filtered(){const q=els.search.value.trim().toLowerCase(),view=els.view?.value||'active';let list=tasks.filter(t=>view==='trash'?!!t.deletedAt:view==='archive'?!t.deletedAt&&!!t.archivedAt:!t.deletedAt&&!t.archivedAt);list=list.filter(t=>(!q||[t.title,t.content,t.notes,t.counterpart,t.category].some(v=>String(v||'').toLowerCase().includes(q)))&&(!els.direction.value||t.direction===els.direction.value)&&(!els.status.value||t.status===els.status.value)&&(!els.priority.value||t.priority===els.priority.value));if(metricMode==='soon')list=list.filter(isSoon);else if(metricMode==='important')list=list.filter(t=>t.priority==='높음');return sortTasks(list)}
+function statusOptions(t){return ['예정','진행중','완료'].map(s=>`<option ${t.status===s?'selected':''}>${s}</option>`).join('')}
+function actionButtons(t,view){if(view==='trash')return `<button class="btn small" data-restore-trash="${t.id}">복원</button><button class="btn danger small" data-purge="${t.id}">완전삭제</button>`;if(view==='archive')return `<button class="btn small" data-restore-archive="${t.id}">보관 해제</button><button class="btn small" data-edit="${t.id}">수정</button><button class="btn danger small" data-delete="${t.id}">삭제</button>`;return `${t.checklistItems?.length?`<button class="btn small" data-checklist="${t.id}">체크 ${checklistStats(t).done}/${checklistStats(t).total}</button>`:''}<button class="btn small" data-edit="${t.id}">수정</button>${t.status==='완료'?`<button class="btn small" data-archive="${t.id}">보관</button>`:''}<button class="btn danger small" data-delete="${t.id}">삭제</button>`}
+
+function render(){
+ const list=filtered(),active=activeTasks(),view=els.view?.value||'active';
+ $('#mTotal').textContent=active.length;$('#mReceive').textContent=active.filter(t=>t.direction==='인수').length;$('#mHandover').textContent=active.filter(t=>t.direction==='인계').length;$('#mSoon').textContent=active.filter(isSoon).length;$('#mImportant').textContent=active.filter(t=>t.priority==='높음').length;
+ els.body.innerHTML=list.map(t=>{const due=dueLabel(t),cs=checklistStats(t),rowClass=view==='archive'?'archived-row':view==='trash'?'trash-row':'';return `<tr class="${rowClass}"><td class="title-cell"><div class="task-title">${esc(t.title)}</div><div class="task-sub">${esc([t.category,t.counterpart].filter(Boolean).join(' · ')||t.content||'업무내용 없음')}</div>${cs.total?`<div class="check-summary"><div class="check-mini"><span style="width:${cs.pct}%"></span></div><span>체크 ${cs.done}/${cs.total}</span></div>`:''}${view==='archive'?'<div class="view-note">보관된 업무</div>':view==='trash'?'<div class="view-note">30일 후 자동 완전삭제</div>':''}</td><td><span class="badge ${t.direction==='인수'?'receive':'handover'}">${t.direction}</span></td><td class="${due?'due-soon':''}">${esc(t.dueDate)}${due?`<span class="due-chip">${esc(due)}</span>`:''}</td><td>${view==='trash'?esc(t.status):`<select class="control status-select" data-status="${t.id}" aria-label="${esc(t.title)} 진행상태">${statusOptions(t)}</select>`}</td><td><span class="badge ${t.priority==='높음'?'high':t.priority==='보통'?'medium':'low'}">${t.priority}</span></td><td><div class="progress"><div class="bar"><span style="width:${t.progress}%"></span></div><span class="pct">${t.progress}%</span></div></td><td>${esc(t.notes||'-')}</td><td><div class="actions">${actionButtons(t,view)}</div></td></tr>`}).join('');
+ els.mobile.innerHTML=list.map(t=>{const due=dueLabel(t),cs=checklistStats(t);return `<article class="mobile-card ${view==='trash'?'trash-row':''}"><div class="top"><div><span class="badge ${t.direction==='인수'?'receive':'handover'}">${t.direction}</span> <span class="badge ${t.priority==='높음'?'high':t.priority==='보통'?'medium':'low'}">${t.priority}</span></div>${view==='trash'?`<span class="status">${esc(t.status)}</span>`:`<select class="control status-select" data-status="${t.id}">${statusOptions(t)}</select>`}</div><h3>${esc(t.title)}</h3><p>${esc(t.content||'업무내용 없음')}</p>${cs.total?`<div class="check-summary"><div class="check-mini"><span style="width:${cs.pct}%"></span></div><span>체크 ${cs.done}/${cs.total}</span></div>`:''}<div class="meta"><div><b>처리기한</b><span class="${due?'due-soon':''}">${esc(t.dueDate)} ${due?`· ${esc(due)}`:''}</span></div><div><b>완료율</b>${t.progress}%</div></div><div class="card-actions">${actionButtons(t,view)}</div></article>`}).join('');
+ els.empty.style.display=list.length?'none':'block';els.mobile.style.display=list.length?'':'none';const viewName=view==='archive'?'보관함':view==='trash'?'휴지통':'관리 중';els.count.textContent=`${viewName} · ${list.length}개 업무 표시 중 · 관리 중 전체 ${active.length}개`;save();
+}
+function openModal(task){const t=task||{id:'',title:'',direction:'인수',category:'',counterpart:'',departmentRole:'',contact:'',dueDate:localDate(7),status:'예정',priority:'보통',progress:0,content:'',checklist:'',documents:'',notes:''};$('#modalTitle').textContent=task?'업무 수정':'업무 등록';els.id.value=t.id;els.title.value=t.title;els.dir.value=t.direction;els.category.value=t.category||'';els.counterpart.value=t.counterpart||'';els.departmentRole.value=t.departmentRole||'';els.contact.value=t.contact||'';els.due.value=t.dueDate;els.fstatus.value=t.status;els.fpriority.value=t.priority;els.progress.value=t.progress;els.progressValue.textContent=t.progress+'%';els.content.value=t.content||'';els.checklist.value=t.checklist||'';els.documents.value=t.documents||'';els.notes.value=t.notes||'';els.modal.classList.add('open');setTimeout(()=>els.title.focus(),30)}
+function closeModal(){els.modal.classList.remove('open');els.form.reset()}
+function toast(msg,type='success',ms=3200,action=null){const el=document.createElement('div');el.className=`toast ${type}`;const row=document.createElement('div');row.className='toast-row';const span=document.createElement('span');span.textContent=msg;row.appendChild(span);if(action){const b=document.createElement('button');b.className='toast-action';b.textContent=action.label;b.addEventListener('click',()=>{action.run();el.remove()});row.appendChild(b)}el.appendChild(row);$('#toastWrap').appendChild(el);setTimeout(()=>el.remove(),ms)}
+function setTaskStatus(id,status){const t=tasks.find(x=>x.id===id);if(!t||t.deletedAt)return;if(status==='완료'&&t.status!=='완료'){t.previousProgress=t.progress;t.progress=100}else if(t.status==='완료'&&status!=='완료'){t.progress=Math.max(0,Math.min(100,Number(t.previousProgress)|| (status==='진행중'?50:0)))}t.status=status;t.updatedAt=Date.now();save();render();toast(`진행상태를 “${status}”로 변경했습니다.`)}
+function deleteTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;if(!confirm(`“${t.title}” 업무를 휴지통으로 이동할까요?`))return;const prev={deletedAt:t.deletedAt,archivedAt:t.archivedAt};t.deletedAt=Date.now();t.archivedAt=null;t.updatedAt=Date.now();save();render();toast('업무를 휴지통으로 이동했습니다.','success',6000,{label:'실행 취소',run:()=>{t.deletedAt=prev.deletedAt||null;t.archivedAt=prev.archivedAt||null;t.updatedAt=Date.now();save();render();toast('삭제를 취소했습니다.')}})}
+function archiveTask(id){const t=tasks.find(x=>x.id===id);if(!t||t.deletedAt)return;t.archivedAt=Date.now();t.updatedAt=Date.now();save();render();toast('완료 업무를 보관함으로 옮겼습니다.')}
+function restoreArchive(id){const t=tasks.find(x=>x.id===id);if(!t)return;t.archivedAt=null;t.updatedAt=Date.now();save();render();toast('업무를 관리 중 목록으로 복원했습니다.')}
+function restoreTrash(id){const t=tasks.find(x=>x.id===id);if(!t)return;t.deletedAt=null;t.updatedAt=Date.now();save();render();toast('휴지통에서 업무를 복원했습니다.')}
+function purgeTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;if(!confirm(`“${t.title}” 업무를 완전히 삭제할까요? 이 작업은 되돌릴 수 없습니다.`))return;tasks=tasks.filter(x=>x.id!==id);save();render();toast('업무를 완전히 삭제했습니다.')}
+function openChecklist(id){const t=tasks.find(x=>x.id===id);if(!t)return;currentChecklistTaskId=id;renderChecklistModal();els.checklistModal.classList.add('open')}
+function closeChecklist(){els.checklistModal.classList.remove('open');currentChecklistTaskId=null}
+function renderChecklistModal(){const t=tasks.find(x=>x.id===currentChecklistTaskId);if(!t)return;const s=checklistStats(t);$('#checklistTitle').textContent=t.title;els.checklistContent.innerHTML=`<div class="checklist-headline"><strong>세부 체크리스트</strong><span>${s.done}/${s.total} 완료 · ${s.pct}%</span></div>${s.total?`<div class="checklist-list">${t.checklistItems.map((x,i)=>`<label class="check-item ${x.done?'done':''}"><input type="checkbox" data-check-index="${i}" ${x.done?'checked':''}><span>${esc(x.text)}</span></label>`).join('')}</div>`:'<div class="empty" style="padding:28px 10px"><strong>등록된 체크리스트가 없습니다.</strong>업무 수정에서 체크리스트를 추가할 수 있습니다.</div>'}`}
+function toggleChecklist(index,done){const t=tasks.find(x=>x.id===currentChecklistTaskId);if(!t||!t.checklistItems[index])return;t.checklistItems[index].done=done;t.updatedAt=Date.now();save();render();renderChecklistModal()}
+function handleAction(e){const el=e.target.closest('[data-edit],[data-delete],[data-archive],[data-restore-archive],[data-restore-trash],[data-purge],[data-checklist]');if(!el)return;if(el.dataset.edit){const t=tasks.find(x=>x.id===el.dataset.edit);if(t)openModal(t)}else if(el.dataset.delete)deleteTask(el.dataset.delete);else if(el.dataset.archive)archiveTask(el.dataset.archive);else if(el.dataset.restoreArchive)restoreArchive(el.dataset.restoreArchive);else if(el.dataset.restoreTrash)restoreTrash(el.dataset.restoreTrash);else if(el.dataset.purge)purgeTask(el.dataset.purge);else if(el.dataset.checklist)openChecklist(el.dataset.checklist)}
+function handleStatusChange(e){const el=e.target.closest('[data-status]');if(el)setTaskStatus(el.dataset.status,el.value)}
+function duplicateSignature(t){return [t.direction,t.title,t.counterpart,t.dueDate].map(v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ')).join('|')}
+function findDuplicate(t){const sig=duplicateSignature(t);return tasks.find(x=>!x.deletedAt&&duplicateSignature(x)===sig)||null}
+function showImportPreview(imported){pendingImport=imported.map(task=>({task,duplicate:findDuplicate(task)}));const dup=pendingImport.filter(x=>x.duplicate).length,add=pendingImport.length-dup;els.importContent.innerHTML=`<div class="preview-summary"><div class="preview-stat"><span>읽은 업무</span><b>${pendingImport.length}</b></div><div class="preview-stat"><span>신규</span><b>${add}</b></div><div class="preview-stat"><span>중복 의심</span><b>${dup}</b></div></div><div class="preview-table-wrap"><table class="preview-table"><thead><tr><th>판정</th><th>구분</th><th>업무명</th><th>대상자</th><th>마감기한</th></tr></thead><tbody>${pendingImport.slice(0,100).map(x=>`<tr><td class="${x.duplicate?'preview-dup':'preview-new'}">${x.duplicate?'중복 의심':'신규'}</td><td>${esc(x.task.direction)}</td><td>${esc(x.task.title)}</td><td>${esc(x.task.counterpart||'-')}</td><td>${esc(x.task.dueDate)}</td></tr>`).join('')}</tbody></table></div>${pendingImport.length>100?`<div class="view-note" style="margin-top:8px">미리보기는 처음 100건까지만 표시합니다. 전체 ${pendingImport.length}건을 가져옵니다.</div>`:''}`;els.importModal.classList.add('open')}
+function closeImport(){els.importModal.classList.remove('open');pendingImport=[];els.file.value=''}
+function commitImport(mode){if(!pendingImport.length)return;let added=0,replaced=0,skipped=0;for(const item of pendingImport){if(item.duplicate){if(mode==='skip'){skipped++;continue}if(mode==='replace'){const old=item.duplicate,idx=tasks.findIndex(x=>x.id===old.id);tasks[idx]=normalizeTask({...item.task,id:old.id,createdAt:old.createdAt,archivedAt:old.archivedAt,deletedAt:null,checklistItems:old.checklistItems});replaced++;continue}}tasks.push(normalizeTask({...item.task,id:uid()}));added++}save();closeImport();render();toast(`엑셀 반영 완료 · 추가 ${added}건${replaced?` · 덮어쓰기 ${replaced}건`:''}${skipped?` · 중복 제외 ${skipped}건`:''}`,'success',5000)}
+function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function backupData(){downloadJson({app:'업무터치',version:APP_VERSION,exportedAt:new Date().toISOString(),tasks,theme:document.documentElement.dataset.theme||'light',ui:{view:els.view.value,sort:els.sort.value,search:els.search.value,direction:els.direction.value,status:els.status.value,priority:els.priority.value}},`업무터치_전체백업_${localDate()}.json`);toast('업무·보관함·휴지통·설정을 전체 백업했습니다.')}
+async function restoreData(file){if(!file)return;try{const data=JSON.parse(await file.text());if(data.app!=='업무터치'||!Array.isArray(data.tasks))throw new Error('업무터치 백업파일 형식이 아닙니다.');if(!confirm(`백업에 있는 ${data.tasks.length}개 업무로 현재 데이터를 복원할까요? 현재 데이터는 교체됩니다.`))return;tasks=data.tasks.map(t=>normalizeTask(t,false));purgeExpiredTrash();if(data.theme){document.documentElement.dataset.theme=data.theme;localStorage.setItem(THEME_KEY,data.theme)}if(data.ui?.view)els.view.value=data.ui.view;if(data.ui?.sort)els.sort.value=data.ui.sort;if(data.ui?.search!=null)els.search.value=data.ui.search;if(data.ui?.direction!=null)els.direction.value=data.ui.direction;if(data.ui?.status!=null)els.status.value=data.ui.status;if(data.ui?.priority!=null)els.priority.value=data.ui.priority;save();render();toast(`${tasks.length}개 업무와 설정을 백업파일에서 복원했습니다.`,'success',5000)}catch(err){toast('백업 복원 실패: '+err.message,'error',6500)}finally{els.restoreFile.value=''}}
+function applyMetric(metric){els.view.value='active';els.search.value='';els.direction.value='';els.status.value='';els.priority.value='';metricMode='';if(metric==='receive')els.direction.value='인수';else if(metric==='handover')els.direction.value='인계';else if(metric==='important'){els.priority.value='높음';metricMode='important'}else if(metric==='soon')metricMode='soon';render()}
+
+function findEOCD(bytes){for(let i=bytes.length-22;i>=Math.max(0,bytes.length-65557);i--)if(bytes[i]===0x50&&bytes[i+1]===0x4b&&bytes[i+2]===0x05&&bytes[i+3]===0x06)return i;return -1}
+function r16(a,o){return a[o]|(a[o+1]<<8)} function r32(a,o){return (a[o]|(a[o+1]<<8)|(a[o+2]<<16)|(a[o+3]<<24))>>>0}
+async function unzipEntries(buffer){const a=new Uint8Array(buffer),eocd=findEOCD(a);if(eocd<0)throw new Error('유효한 .xlsx 파일이 아닙니다.');const count=r16(a,eocd+10),cdOff=r32(a,eocd+16),map={};let p=cdOff;for(let i=0;i<count;i++){if(r32(a,p)!==0x02014b50)throw new Error('엑셀 ZIP 구조를 읽을 수 없습니다.');const method=r16(a,p+10),compSize=r32(a,p+20),nameLen=r16(a,p+28),extraLen=r16(a,p+30),commentLen=r16(a,p+32),localOff=r32(a,p+42),name=td.decode(a.slice(p+46,p+46+nameLen));if(r32(a,localOff)!==0x04034b50)throw new Error('엑셀 내부 파일 구조가 손상되었습니다.');const ln=r16(a,localOff+26),le=r16(a,localOff+28),start=localOff+30+ln+le,comp=a.slice(start,start+compSize);let data;if(method===0)data=comp;else if(method===8){if(typeof DecompressionStream==='undefined')throw new Error('이 브라우저는 압축된 .xlsx 읽기를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용해 주세요.');const ds=new DecompressionStream('deflate-raw');data=new Uint8Array(await new Response(new Blob([comp]).stream().pipeThrough(ds)).arrayBuffer())}else throw new Error(`지원하지 않는 엑셀 압축 방식(${method})입니다.`);map[name]=data;p+=46+nameLen+extraLen+commentLen}return map}
+function parseXml(bytes){return new DOMParser().parseFromString(td.decode(bytes),'application/xml')}
+function cellCol(ref){const m=/^[A-Z]+/.exec(ref||'A');let n=0;for(const ch of m[0])n=n*26+(ch.charCodeAt(0)-64);return n-1}
+function textOf(si){return Array.from(si.getElementsByTagName('t')).map(n=>n.textContent||'').join('')}
+async function parseXlsx(buffer){const z=await unzipEntries(buffer);let shared=[];if(z['xl/sharedStrings.xml']){const d=parseXml(z['xl/sharedStrings.xml']);shared=Array.from(d.getElementsByTagName('si')).map(textOf)}let sheetPath='xl/worksheets/sheet1.xml';if(z['xl/workbook.xml']&&z['xl/_rels/workbook.xml.rels']){const wb=parseXml(z['xl/workbook.xml']),sh=wb.getElementsByTagName('sheet')[0],rid=sh?.getAttribute('r:id')||sh?.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');if(rid){const rel=parseXml(z['xl/_rels/workbook.xml.rels']);const node=Array.from(rel.getElementsByTagName('Relationship')).find(x=>x.getAttribute('Id')===rid);if(node){const target=node.getAttribute('Target');sheetPath=target.startsWith('/')?target.slice(1):('xl/'+target.replace(/^\.\//,''));sheetPath=sheetPath.replace(/\/[^/]+\/\.\.\//g,'/')}}}if(!z[sheetPath])throw new Error('첫 번째 워크시트를 찾을 수 없습니다.');const d=parseXml(z[sheetPath]),rows=[];for(const row of Array.from(d.getElementsByTagName('row'))){const out=[];for(const c of Array.from(row.getElementsByTagName('c'))){const idx=cellCol(c.getAttribute('r')),type=c.getAttribute('t'),v=c.getElementsByTagName('v')[0]?.textContent??'',inline=c.getElementsByTagName('is')[0];let val='';if(type==='s')val=shared[Number(v)]??'';else if(type==='inlineStr')val=inline?textOf(inline):'';else if(type==='b')val=v==='1'?'TRUE':'FALSE';else val=v;out[idx]=val}rows.push(out.map(v=>v??''))}return rows}
+function excelDateToIso(v){if(/^\d{4}-\d{2}-\d{2}$/.test(String(v)))return String(v);const n=Number(v);if(Number.isFinite(n)&&n>20000&&n<80000){const d=new Date(Date.UTC(1899,11,30)+n*86400000);return d.toISOString().slice(0,10)}return String(v||'')}
+
+function cleanHeader(v){return String(v??'').replace(/\s+/g,' ').trim()}
+function headerIndex(header,names){for(const name of names){const i=header.indexOf(name);if(i>=0)return i}return -1}
+function valueAt(row,idx){return idx>=0?String(row[idx]??'').trim():''}
+function normalizePriorityValue(v){
+ const x=String(v||'').replace(/\s+/g,'');
+ if(['높음','매우높음','긴급/중요','긴급','중요'].includes(x))return '높음';
+ if(['낮음','낮음/일반'].includes(x))return '낮음';
+ return '보통';
+}
+function normalizeStatusValue(v){
+ const x=String(v||'').replace(/\s+/g,'');
+ if(x==='완료')return '완료';
+ if(['진행중','긴급','지연'].includes(x))return '진행중';
+ return '예정';
+}
+function splitDetailNotes(v){
+ const s=String(v||''),marker='[참고사항]',i=s.indexOf(marker);
+ return i<0?{content:s,notes:''}:{content:s.slice(0,i).trim(),notes:s.slice(i+marker.length).trim()};
+}
+function findHeaderRow(rows){
+ for(let r=0;r<Math.min(rows.length,8);r++){const h=(rows[r]||[]).map(cleanHeader);if(h.includes('업무명')&&(h.includes('구분')||h.includes('인수/인계')))return r}
+ return -1;
+}
+function rowsToTasks(rows){
+ if(!rows.length)throw new Error('엑셀에 데이터가 없습니다.');
+ const headerRow=findHeaderRow(rows);if(headerRow<0)throw new Error('헤더 행을 찾을 수 없습니다. “구분”과 “업무명” 열이 있는 양식을 사용해 주세요.');
+ const header=(rows[headerRow]||[]).map(cleanHeader);
+ const col={
+  direction:headerIndex(header,['구분','인수/인계']),title:headerIndex(header,['업무명']),category:headerIndex(header,['카테고리','업무분류']),
+  counterpart:headerIndex(header,['인수인계 대상자']),departmentRole:headerIndex(header,['소속 부서/직급','담당부서']),contact:headerIndex(header,['연락처/이메일']),
+  due:headerIndex(header,['마감기한','처리기한','마감일']),status:headerIndex(header,['진행상태']),priority:headerIndex(header,['우선순위','중요도']),
+  progress:headerIndex(header,['완료율']),content:headerIndex(header,['업무 상세 내용 및 주의사항','업무내용']),notes:headerIndex(header,['참고사항','비고','인계메모']),
+  checklist:headerIndex(header,['세부 체크리스트 항목 (쉼표 또는 줄바꿈 구분)','세부 체크리스트','체크리스트']),documents:headerIndex(header,['관련 문서/드라이브 링크','관련문서·파일']),
+  handoverFrom:headerIndex(header,['인계자']),handoverTo:headerIndex(header,['인수자']),owner:headerIndex(header,['담당자']),
+  start:headerIndex(header,['시작일']),related:headerIndex(header,['관련기관·대상']),followup:headerIndex(header,['후속조치']),caution:headerIndex(header,['주의사항'])
+ };
+ const required=[];if(col.direction<0)required.push('구분');if(col.title<0)required.push('업무명');if(col.due<0)required.push('마감기한/처리기한/마감일');if(required.length)throw new Error(`필수 열이 없습니다: ${required.join(', ')}`);
+ const out=[],errors=[];
+ for(let r=headerRow+1;r<rows.length;r++){
+  const row=rows[r];if(!row||row.every(v=>String(v??'').trim()===''))continue;
+  const title=valueAt(row,col.title),direction=valueAt(row,col.direction),due=excelDateToIso(valueAt(row,col.due)),rawStatus=valueAt(row,col.status),rawPriority=valueAt(row,col.priority);
+  const rowErr=[];if(!title)rowErr.push('업무명');if(!['인수','인계'].includes(direction))rowErr.push('구분(인수 또는 인계)');if(!/^\d{4}-\d{2}-\d{2}$/.test(due))rowErr.push('마감기한(YYYY-MM-DD)');
+  if(rowErr.length){errors.push(`${r+1}행: ${rowErr.join(', ')}`);continue}
+  const detail=splitDetailNotes(valueAt(row,col.content));let notes=[detail.notes,valueAt(row,col.notes)].filter(Boolean);
+  const sourceStatus=rawStatus&&!['예정','진행중','완료','대기','인수/인계 대기'].includes(rawStatus)?rawStatus:'';
+  if(sourceStatus)notes.push(`원본 진행상태: ${sourceStatus}`);
+  const start=valueAt(row,col.start),related=valueAt(row,col.related),followup=valueAt(row,col.followup),caution=valueAt(row,col.caution),handoverFrom=valueAt(row,col.handoverFrom),handoverTo=valueAt(row,col.handoverTo),owner=valueAt(row,col.owner);
+  if(start)notes.push(`시작일: ${excelDateToIso(start)}`);if(related)notes.push(`관련기관·대상: ${related}`);if(followup)notes.push(`후속조치: ${followup}`);if(caution)notes.push(`주의사항: ${caution}`);
+  if(handoverFrom)notes.push(`인계자: ${handoverFrom}`);if(handoverTo)notes.push(`인수자: ${handoverTo}`);if(owner)notes.push(`담당자: ${owner}`);
+  let counterpart=valueAt(row,col.counterpart);
+  if(!counterpart)counterpart=direction==='인계'?valueAt(row,col.handoverTo):valueAt(row,col.handoverFrom);
+  const rawProgress=valueAt(row,col.progress);let progress=rawProgress===''?NaN:Number(rawProgress.replace('%',''));const status=normalizeStatusValue(rawStatus);
+  if(!Number.isFinite(progress)||progress<0||progress>100)progress=status==='완료'?100:status==='진행중'?50:0;
+  let priority=normalizePriorityValue(rawPriority);if(rawStatus==='긴급')priority='높음';
+  out.push(normalizeTask({title,direction,category:valueAt(row,col.category),counterpart,departmentRole:valueAt(row,col.departmentRole),contact:valueAt(row,col.contact),dueDate:due,status,priority,progress,content:detail.content,checklist:valueAt(row,col.checklist),documents:valueAt(row,col.documents),notes:notes.join('\n')}));
+ }
+ if(errors.length)throw new Error(`업로드할 수 없는 값이 있습니다.\n${errors.slice(0,6).join('\n')}${errors.length>6?`\n외 ${errors.length-6}건`:''}`);
+ if(!out.length)throw new Error('업로드할 업무 데이터가 없습니다.');
+ return out;
+}
+async function uploadFile(file){if(!file)return;if(!/\.xlsx$/i.test(file.name)){toast('엑셀 .xlsx 파일만 업로드할 수 있습니다.','error',5000);els.file.value='';return}try{const rows=await parseXlsx(await file.arrayBuffer()),imported=rowsToTasks(rows);showImportPreview(imported)}catch(err){toast('엑셀 업로드 실패: '+err.message,'error',7000);els.file.value=''}}
+
+function bind(){
+ $('#addBtn').addEventListener('click',()=>openModal());$('#closeModalBtn').addEventListener('click',closeModal);$('#cancelBtn').addEventListener('click',closeModal);els.modal.addEventListener('click',e=>{if(e.target===els.modal)closeModal()});
+ els.progress.addEventListener('input',()=>els.progressValue.textContent=els.progress.value+'%');els.fstatus.addEventListener('change',()=>{if(els.fstatus.value==='완료'){els.progress.value=100;els.progressValue.textContent='100%'}});
+ els.form.addEventListener('submit',e=>{e.preventDefault();const existing=tasks.find(t=>t.id===els.id.value);const draft=normalizeTask({...existing,id:els.id.value||undefined,title:els.title.value,direction:els.dir.value,category:els.category.value,counterpart:els.counterpart.value,departmentRole:els.departmentRole.value,contact:els.contact.value,dueDate:els.due.value,status:els.fstatus.value,priority:els.fpriority.value,progress:els.progress.value,content:els.content.value,checklist:els.checklist.value,documents:els.documents.value,notes:els.notes.value,checklistItems:existing?.checklistItems||[]});if(!draft.title){toast('업무명을 입력해 주세요.','error');return}if(existing){const i=tasks.findIndex(t=>t.id===existing.id);tasks[i]={...draft,id:existing.id,createdAt:existing.createdAt,archivedAt:existing.archivedAt,deletedAt:existing.deletedAt};toast('업무가 수정되었습니다.')}else{tasks.unshift(draft);toast('업무가 등록되었습니다.')}save();render();closeModal()});
+ [els.search,els.direction,els.status,els.priority].forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',()=>{metricMode='';render()}));els.view.addEventListener('change',()=>{metricMode='';render()});els.sort.addEventListener('change',render);$('#resetFilterBtn').addEventListener('click',()=>{els.search.value='';els.direction.value='';els.status.value='';els.priority.value='';els.view.value='active';els.sort.value='due';metricMode='';render()});
+ els.body.addEventListener('click',handleAction);els.mobile.addEventListener('click',handleAction);els.body.addEventListener('change',handleStatusChange);els.mobile.addEventListener('change',handleStatusChange);
+ $('#templateBtn').addEventListener('click',downloadTemplate);$('#exportBtn').addEventListener('click',exportCurrent);$('#uploadBtn').addEventListener('click',()=>els.file.click());els.file.addEventListener('change',()=>uploadFile(els.file.files[0]));
+ $('#backupBtn').addEventListener('click',backupData);$('#restoreBtn').addEventListener('click',()=>els.restoreFile.click());els.restoreFile.addEventListener('change',()=>restoreData(els.restoreFile.files[0]));
+ $('#closeChecklistBtn').addEventListener('click',closeChecklist);$('#doneChecklistBtn').addEventListener('click',closeChecklist);els.checklistModal.addEventListener('click',e=>{if(e.target===els.checklistModal)closeChecklist()});els.checklistContent.addEventListener('change',e=>{const c=e.target.closest('[data-check-index]');if(c)toggleChecklist(Number(c.dataset.checkIndex),c.checked)});$('#editFromChecklistBtn').addEventListener('click',()=>{const t=tasks.find(x=>x.id===currentChecklistTaskId);closeChecklist();if(t)openModal(t)});
+ $('#closeImportBtn').addEventListener('click',closeImport);$('#cancelImportBtn').addEventListener('click',closeImport);els.importModal.addEventListener('click',e=>{if(e.target===els.importModal)closeImport()});$('#importSkipBtn').addEventListener('click',()=>commitImport('skip'));$('#importAllBtn').addEventListener('click',()=>commitImport('all'));$('#importReplaceBtn').addEventListener('click',()=>commitImport('replace'));
+ document.querySelectorAll('[data-metric]').forEach(m=>{const go=()=>applyMetric(m.dataset.metric);m.addEventListener('click',go);m.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
+ $('#themeBtn').addEventListener('click',()=>{const cur=document.documentElement.dataset.theme||'light',next=cur==='dark'?'light':'dark';document.documentElement.dataset.theme=next;localStorage.setItem(THEME_KEY,next);$('#themeBtn .label').textContent=next==='dark'?'라이트모드':'다크모드'});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(els.importModal.classList.contains('open'))closeImport();else if(els.checklistModal.classList.contains('open'))closeChecklist();else if(els.modal.classList.contains('open'))closeModal()}});
+}
+function initTheme(){const t=localStorage.getItem(THEME_KEY)||((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.dataset.theme=t;$('#themeBtn .label').textContent=t==='dark'?'라이트모드':'다크모드'}
+async function runSelfTests(){const lines=[];const ok=(name,cond)=>{lines.push(`${cond?'PASS':'FAIL'} · ${name}`);if(!cond)throw new Error(name)};try{const original=JSON.parse(JSON.stringify(tasks));const ui={view:els.view.value,sort:els.sort.value};const test=normalizeTask({title:'v1.2 테스트 업무',direction:'인계',counterpart:'테스트 담당',dueDate:localDate(1),status:'진행중',priority:'높음',progress:55,content:'테스트',checklist:'첫 단계\n둘째 단계',notes:'테스트'});tasks=[...original,test];save();ok('기존 저장키 호환/업무 등록',JSON.parse(localStorage.getItem(STORAGE_KEY)).some(t=>t.title==='v1.2 테스트 업무'));ok('체크리스트 구조 변환',test.checklistItems.length===2&&!test.checklistItems[0].done);test.checklistItems[0].done=true;save();ok('체크리스트 체크 저장',JSON.parse(localStorage.getItem(STORAGE_KEY)).find(t=>t.id===test.id).checklistItems[0].done===true);const oldProgress=test.progress;setTaskStatus(test.id,'완료');ok('목록 상태 빠른 변경',tasks.find(t=>t.id===test.id).status==='완료'&&tasks.find(t=>t.id===test.id).progress===100);setTaskStatus(test.id,'진행중');ok('완료 해제 시 완료율 복원',tasks.find(t=>t.id===test.id).progress===oldProgress);archiveTask(test.id);ok('완료 업무 보관',!!tasks.find(t=>t.id===test.id).archivedAt);restoreArchive(test.id);ok('보관 해제',!tasks.find(t=>t.id===test.id).archivedAt);const t=tasks.find(x=>x.id===test.id);t.deletedAt=Date.now();ok('휴지통 이동 데이터 구조',!!t.deletedAt);restoreTrash(test.id);ok('휴지통 복원',!tasks.find(x=>x.id===test.id).deletedAt);const dup=normalizeTask({...test,id:undefined});ok('엑셀 중복 판정 키',duplicateSignature(dup)===duplicateSignature(test)&&!!findDuplicate(dup));els.view.value='active';els.sort.value='priority';ok('중요도 정렬',sortTasks([normalizeTask({...test,title:'낮음',priority:'낮음'}),normalizeTask({...test,title:'높음',priority:'높음'})])[0].priority==='높음');const backup={app:'업무터치',version:APP_VERSION,tasks};ok('백업 데이터 구조',backup.app==='업무터치'&&Array.isArray(backup.tasks));const bytes=workbookBytes(exportRows([test]));ok('엑셀 저장 생성',bytes.length>1000);const parsed=await parseXlsx(bytes.buffer);ok('엑셀 파서/재업로드',parsed[0][0]==='구분'&&rowsToTasks(parsed).length===1);ok('마감 임박 판정',isSoon(test)===true);ok('모바일 반응형 CSS','matchMedia' in window);tasks=original;els.view.value=ui.view;els.sort.value=ui.sort;save();render();lines.push('\n전체 v1.2 핵심 기능 테스트 통과');}catch(e){lines.push(`\n테스트 중단: ${e.message}`)}finally{els.search.value='';els.direction.value='';els.status.value='';els.priority.value='';metricMode='';els.tests.style.display='block';els.tests.textContent=lines.join('\n');document.body.dataset.testsDone='1';document.body.dataset.testsPassed=lines.some(x=>x.includes('전체 v1.2 핵심 기능 테스트 통과'))?'1':'0'}}
+initTheme();load();bind();render();
+window.__runTests=runSelfTests;
+if(new URLSearchParams(location.search).get('test')==='1')setTimeout(runSelfTests,30);
+
+})();
+</script>
 </body>
 </html>
