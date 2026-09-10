@@ -1,4 +1,4 @@
-name: Deploy 업무터치 to GitHub Pages
+name: Finalize 업무터치 single-file deployment
 
 on:
   push:
@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-finalize
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  deploy-and-clean:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build single-file app
+      - name: Build standalone index.html
         shell: bash
         run: |
           python - <<'PY'
@@ -59,10 +59,11 @@ jobs:
           if '<script src=' in html or 'rel="stylesheet"' in html:
               raise SystemExit('외부 CSS/JS 참조가 남아 있습니다.')
 
+          Path('index.html').write_text(html, encoding='utf-8')
           out = Path('_site')
           out.mkdir(exist_ok=True)
           (out / 'index.html').write_text(html, encoding='utf-8')
-          print(f'Built single index.html: {len(html):,} chars')
+          print(f'Built standalone index.html: {len(html):,} chars')
           PY
 
       - name: Configure Pages
@@ -78,3 +79,18 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Leave only index.html in repository
+        shell: bash
+        run: |
+          rm -rf _site
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'index.html' -exec rm -rf {} +
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to clean"
+          else
+            git commit -m "Keep only standalone index.html"
+            git push origin HEAD:main
+          fi
