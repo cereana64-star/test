@@ -23,14 +23,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Build single-file app
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          css = Path('styles.css').read_text(encoding='utf-8')
+          scripts = []
+          for name in [
+              'app-config.js',
+              'template.js',
+              'app-core-1.js',
+              'app-core-2.js',
+              'xlsx.js',
+              'import.js',
+              'bootstrap.js',
+          ]:
+              scripts.append(Path(name).read_text(encoding='utf-8'))
+
+          html = html.replace(
+              '<link rel="stylesheet" href="styles.css" />',
+              '<style>\n' + css + '\n</style>'
+          )
+
+          first = '<script src="app-config.js"></script>'
+          last = '<script src="bootstrap.js"></script>'
+          start = html.index(first)
+          end = html.index(last) + len(last)
+          inline_script = '<script>\n(() => {\n' + '\n'.join(scripts) + '\n})();\n</script>'
+          html = html[:start] + inline_script + html[end:]
+
+          if '<script src=' in html or 'rel="stylesheet"' in html:
+              raise SystemExit('외부 CSS/JS 참조가 남아 있습니다.')
+
+          out = Path('_site')
+          out.mkdir(exist_ok=True)
+          (out / 'index.html').write_text(html, encoding='utf-8')
+          print(f'Built single index.html: {len(html):,} chars')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Upload artifact
+
+      - name: Upload single-file site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
