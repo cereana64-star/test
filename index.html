@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>업무터치 v1.2 · 업무 인수인계 관리</title>
+<meta name="description" content="브라우저에서 독립 실행되는 업무 인수인계 관리 웹앱 · v1.2" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand"><div class="logo">업</div><div><h1>업무터치</h1><p>업무 인수·인계를 한 화면에서 빠르게 관리하세요.</p></div></div>
+    <div class="header-actions">
+      <button class="btn" id="themeBtn" title="다크모드 전환">◐ <span class="label">다크모드</span></button>
+      <button class="btn" id="templateBtn" title="표준 엑셀 양식 다운로드">⇩ <span class="label">엑셀 양식</span></button>
+      <button class="btn" id="uploadBtn" title="엑셀 업로드">⇧ <span class="label">엑셀 업로드</span></button>
+      <input class="file-input" type="file" id="fileInput" accept=".xlsx" />
+      <button class="btn" id="exportBtn" title="현재 목록 엑셀 저장">▦ <span class="label">엑셀 저장</span></button>
+      <button class="btn secondary-data" id="backupBtn" title="업무터치 전체 데이터 백업">⬇ <span class="label">백업</span></button>
+      <button class="btn secondary-data" id="restoreBtn" title="업무터치 백업파일 복원">⬆ <span class="label">복원</span></button>
+      <input class="backup-input" type="file" id="restoreFileInput" accept=".json,application/json" />
+      <button class="btn primary" id="addBtn">＋ <span>업무 등록</span></button>
+    </div>
+  </header>
+
+  <section class="grid-cards" aria-label="업무 현황">
+    <div class="metric" data-metric="all" tabindex="0"><div class="label">전체 업무</div><div class="value" id="mTotal">0</div><div class="hint">현재 관리 중인 업무</div></div>
+    <div class="metric" data-metric="receive" tabindex="0"><div class="label">인수 업무</div><div class="value" id="mReceive">0</div><div class="hint">내가 인수받은 업무</div></div>
+    <div class="metric" data-metric="handover" tabindex="0"><div class="label">인계 업무</div><div class="value" id="mHandover">0</div><div class="hint">다른 사람에게 인계할 업무</div></div>
+    <div class="metric" data-metric="soon" tabindex="0"><div class="label">마감 임박</div><div class="value" id="mSoon">0</div><div class="hint">3일 이내 · 미완료</div></div>
+    <div class="metric" data-metric="important" tabindex="0"><div class="label">중요 업무</div><div class="value" id="mImportant">0</div><div class="hint">중요도 '높음' 업무</div></div>
+  </section>
+
+  <div id="testResults" class="test-results"></div>
+
+  <section class="panel">
+    <div class="toolbar">
+      <div class="field search-field"><label>업무명 검색</label><div class="search-wrap"><span class="search-icon">⌕</span><input class="control" id="searchInput" placeholder="업무명을 입력하세요" /></div></div>
+      <div class="field"><label>인수 / 인계</label><select class="control" id="directionFilter"><option value="">전체</option><option>인수</option><option>인계</option></select></div>
+      <div class="field"><label>진행상태</label><select class="control" id="statusFilter"><option value="">전체</option><option>예정</option><option>진행중</option><option>완료</option></select></div>
+      <div class="field"><label>중요도</label><select class="control" id="priorityFilter"><option value="">전체</option><option>높음</option><option>보통</option><option>낮음</option></select></div>
+      <div class="field view-field"><label>보기</label><select class="control" id="viewFilter"><option value="active">관리 중</option><option value="archive">보관함</option><option value="trash">휴지통</option></select></div>
+      <div class="field sort-field"><label>정렬</label><select class="control" id="sortFilter"><option value="due">마감 가까운 순</option><option value="updated">최근 수정 순</option><option value="priority">중요도 순</option><option value="progress">완료율 높은 순</option><option value="title">업무명 순</option></select></div>
+      <div class="reset-wrap"><button class="btn ghost" id="resetFilterBtn">필터 초기화</button></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>업무명</th><th>구분</th><th>처리기한</th><th>진행상태</th><th>중요도</th><th>완료율</th><th>참고사항</th><th>관리</th></tr></thead>
+        <tbody id="taskBody"></tbody>
+      </table>
+      <div class="empty" id="emptyState" style="display:none"><strong>표시할 업무가 없습니다.</strong>검색어나 필터를 바꾸거나 새 업무를 등록해 주세요.</div>
+    </div>
+    <div class="mobile-list" id="mobileList"></div>
+    <div class="footer-line"><span id="resultCount">0개 업무 표시 중</span><span>데이터는 이 브라우저에만 저장됩니다.</span></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">업무 등록</h2><button class="btn ghost small" id="closeModalBtn">닫기</button></div>
+    <form id="taskForm">
+      <input type="hidden" id="taskId" />
+      <div class="modal-body">
+        <div class="field wide"><label>업무명 *</label><input class="control" id="fTitle" required maxlength="120" placeholder="예: 월간 실적보고 자료 취합" /></div>
+        <div class="field"><label>인수 / 인계 *</label><select class="control" id="fDirection" required><option>인수</option><option>인계</option></select></div>
+        <div class="field"><label>카테고리</label><input class="control" id="fCategory" maxlength="80" placeholder="예: 정기/반복업무" /></div>
+        <div class="field"><label>인수인계 대상자</label><input class="control" id="fCounterpart" maxlength="80" placeholder="예: 홍길동 주임" /></div>
+        <div class="field"><label>소속 부서/직급</label><input class="control" id="fDepartmentRole" maxlength="120" placeholder="예: 행정지원과 / 주무관" /></div>
+        <div class="field"><label>연락처/이메일</label><input class="control" id="fContact" maxlength="160" placeholder="예: 02-000-0000 / user@example.com" /></div>
+        <div class="field"><label>처리기한 *</label><input class="control" id="fDueDate" type="date" required /></div>
+        <div class="field"><label>진행상태 *</label><select class="control" id="fStatus"><option>예정</option><option>진행중</option><option>완료</option></select></div>
+        <div class="field"><label>중요도 *</label><select class="control" id="fPriority"><option>높음</option><option selected>보통</option><option>낮음</option></select></div>
+        <div class="field wide"><label>완료율 <span id="progressValue">0%</span></label><input id="fProgress" type="range" min="0" max="100" step="5" value="0" /></div>
+        <div class="field wide"><label>업무내용</label><textarea class="control" id="fContent" maxlength="4000" placeholder="업무 상세 내용과 주의사항을 적어 주세요."></textarea></div>
+        <div class="field wide"><label>세부 체크리스트</label><textarea class="control" id="fChecklist" maxlength="3000" placeholder="쉼표 또는 줄바꿈으로 구분해 입력하세요."></textarea></div>
+        <div class="field wide"><label>관련 문서/드라이브 링크</label><textarea class="control" id="fDocuments" maxlength="3000" placeholder="관련 파일명, 문서 위치 또는 링크를 입력하세요."></textarea></div>
+        <div class="field wide"><label>참고사항</label><textarea class="control" id="fNotes" maxlength="3000" placeholder="후속조치, 별도 메모 등 추가 참고사항을 적어 주세요."></textarea></div>
+      </div>
+      <div class="modal-foot"><button type="button" class="btn" id="cancelBtn">취소</button><button type="submit" class="btn primary">저장</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="checklistBackdrop" role="dialog" aria-modal="true" aria-labelledby="checklistTitle">
+  <div class="modal compact">
+    <div class="modal-head"><h2 id="checklistTitle">체크리스트</h2><button class="btn ghost small" id="closeChecklistBtn">닫기</button></div>
+    <div class="modal-body" style="display:block"><div id="checklistContent"></div></div>
+    <div class="modal-foot"><button class="btn" id="editFromChecklistBtn">업무 내용 수정</button><button class="btn primary" id="doneChecklistBtn">확인</button></div>
+  </div>
+</div>
+<div class="modal-backdrop" id="importBackdrop" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+  <div class="modal wide-modal">
+    <div class="modal-head"><h2 id="importTitle">엑셀 업로드 미리보기</h2><button class="btn ghost small" id="closeImportBtn">닫기</button></div>
+    <div class="modal-body" style="display:block"><div id="importPreviewContent"></div></div>
+    <div class="modal-foot" style="flex-wrap:wrap"><button class="btn" id="cancelImportBtn">취소</button><button class="btn" id="importAllBtn">중복 포함 모두 추가</button><button class="btn" id="importReplaceBtn">중복은 기존 업무 덮어쓰기</button><button class="btn primary" id="importSkipBtn">중복 제외 후 추가</button></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+<script src="app-config.js"></script>
+<script src="template.js"></script>
+<script src="app-core.js"></script>
+<script src="xlsx.js"></script>
+<script src="import.js"></script>
+<script src="bootstrap.js"></script>
+</body>
+</html>
